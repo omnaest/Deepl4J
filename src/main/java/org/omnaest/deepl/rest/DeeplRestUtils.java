@@ -4,8 +4,10 @@ import java.util.List;
 
 import org.omnaest.utils.rest.client.RestClient;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 public class DeeplRestUtils
 {
@@ -72,5 +74,99 @@ public class DeeplRestUtils
                                           .addQueryParameter("text", text)
                                           .build())
                          .get(TranslationResponse.class);
+    }
+
+    public static Usage getUsage(License license, String authorizationKey)
+    {
+        return RestClient.newJSONRestClient()
+                         .request()
+                         .toUrl(RestClient.urlBuilder()
+                                          .setBaseUrl("https://" + license.getBaseUrl() + "/v2/usage")
+                                          .addQueryParameter("auth_key", authorizationKey)
+                                          .build())
+                         .get(Usage.class);
+    }
+
+    public static Languages getAvailableLanguages(License license, String authorizationKey)
+    {
+        return RestClient.newJSONRestClient()
+                         .request()
+                         .toUrl(RestClient.urlBuilder()
+                                          .setBaseUrl("https://" + license.getBaseUrl() + "/v2/languages")
+                                          .addQueryParameter("auth_key", authorizationKey)
+
+                                          .build())
+                         .get(Languages.class);
+    }
+
+    public static class Usage
+    {
+        @JsonProperty("character_count")
+        private long characterCount;
+
+        @JsonProperty("character_limit")
+        private long characterLimit;
+
+        public long getCharacterCount()
+        {
+            return this.characterCount;
+        }
+
+        public long getCharacterLimit()
+        {
+            return this.characterLimit;
+        }
+
+        @Override
+        public String toString()
+        {
+            return "Usage [characterCount=" + this.characterCount + ", characterLimit=" + this.characterLimit + "]";
+        }
+
+    }
+
+    public static class Languages
+    {
+        private List<Language> languages;
+
+        @JsonCreator
+        public Languages(List<Language> languages)
+        {
+            super();
+            this.languages = languages;
+        }
+
+        @JsonValue
+        public List<Language> getLanguages()
+        {
+            return this.languages;
+        }
+
+    }
+
+    public static class Language
+    {
+        @JsonProperty
+        private String language;
+
+        @JsonProperty
+        private String name;
+
+        public String getLanguage()
+        {
+            return this.language;
+        }
+
+        public String getName()
+        {
+            return this.name;
+        }
+
+        @Override
+        public String toString()
+        {
+            return "Language [language=" + this.language + ", name=" + this.name + "]";
+        }
+
     }
 }
